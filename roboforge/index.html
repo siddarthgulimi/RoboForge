@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RoboForge Lite — virtual robot lab</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">▞</span>
+    <span class="brand-name">RoboForge <em>Lite</em></span>
+  </div>
+  <nav class="tabs" id="viewTabs">
+    <button class="tab is-active" data-view="studio">Studio</button>
+    <button class="tab" data-view="compiler">Compiler</button>
+    <button class="tab" data-view="tests">Test lab</button>
+    <button class="tab" data-view="world">World editor</button>
+    <button class="tab" data-view="robot">Robot</button>
+  </nav>
+  <div class="topbar-actions">
+    <button class="btn btn-run" id="btnRun">Run</button>
+    <button class="btn" id="btnStep">Step</button>
+    <button class="btn" id="btnPause">Pause</button>
+    <button class="btn" id="btnReset">Reset</button>
+    <label class="speed">
+      Speed
+      <input type="range" id="speed" min="1" max="20" value="8">
+    </label>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ==================== STUDIO ==================== -->
+  <section class="view is-active" data-view="studio">
+    <div class="studio-grid">
+
+      <aside class="panel palette-panel">
+        <div class="panel-head">
+          <h2>Blocks</h2>
+          <span class="hint" id="paletteTarget">adding to: program</span>
+        </div>
+        <div class="palette" id="palette"></div>
+        <div class="panel-head">
+          <h2>Saved programs</h2>
+        </div>
+        <div class="saves">
+          <input type="text" id="saveName" placeholder="name this build">
+          <button class="btn btn-sm" id="btnSave">Save</button>
+          <button class="btn btn-sm" id="btnExport">Export .json</button>
+          <label class="btn btn-sm file-btn">Import
+            <input type="file" id="fileImport" accept=".json" hidden>
+          </label>
+        </div>
+        <ul class="save-list" id="saveList"></ul>
+      </aside>
+
+      <section class="panel program-panel">
+        <div class="panel-head">
+          <h2>Program</h2>
+          <div class="seg" id="editorMode">
+            <button class="seg-btn is-active" data-mode="blocks">Blocks</button>
+            <button class="seg-btn" data-mode="code">RoboScript</button>
+          </div>
+        </div>
+
+        <div class="program-body" id="blocksMode">
+          <div class="script-root" id="scriptRoot"></div>
+          <p class="empty-note" id="emptyNote">Pick a block on the left to start the robot's routine.</p>
+        </div>
+
+        <div class="program-body hidden" id="codeMode">
+          <textarea id="codeArea" spellcheck="false"></textarea>
+          <div class="code-actions">
+            <button class="btn btn-sm" id="btnCodeToBlocks">Apply to blocks</button>
+            <span class="parse-status" id="parseStatus"></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel sim-panel">
+        <div class="panel-head">
+          <h2>Simulator</h2>
+          <span class="chip" id="runState">idle</span>
+        </div>
+        <div class="stage">
+          <canvas id="grid" width="640" height="480"></canvas>
+        </div>
+
+        <div class="mood-card">
+          <div class="mood-face" id="moodFace">•ᴗ•</div>
+          <div class="mood-text">
+            <strong id="moodLabel">Curious</strong>
+            <span id="moodLine">Waiting for orders.</span>
+          </div>
+        </div>
+
+        <div class="gauges">
+          <div class="gauge"><label>Battery</label><div class="bar"><i id="gBattery"></i></div><span id="vBattery">100%</span></div>
+          <div class="gauge"><label>Motor heat</label><div class="bar warm"><i id="gHeat"></i></div><span id="vHeat">28°C</span></div>
+          <div class="gauge"><label>Front clear</label><div class="bar cool"><i id="gDist"></i></div><span id="vDist">0</span></div>
+        </div>
+
+        <div class="readouts">
+          <span>pos <b id="vPos">1,1</b></span>
+          <span>heading <b id="vHead">E</b></span>
+          <span>steps <b id="vSteps">0</b></span>
+          <span>bumps <b id="vBumps">0</b></span>
+          <span>picked <b id="vPicked">0/0</b></span>
+        </div>
+      </section>
+
+      <section class="panel log-panel">
+        <div class="panel-head">
+          <h2>Timeline</h2>
+          <button class="btn btn-sm" id="btnClearLog">Clear</button>
+        </div>
+        <ol class="log" id="log"></ol>
+      </section>
+    </div>
+  </section>
+
+  <!-- ==================== COMPILER ==================== -->
+  <section class="view" data-view="compiler">
+    <div class="compiler-grid">
+      <div class="panel">
+        <div class="panel-head"><h2>Pipeline</h2><button class="btn btn-sm" id="btnCompile">Compile now</button></div>
+        <ol class="pipeline" id="pipeline">
+          <li data-stage="source" class="is-active">Source</li>
+          <li data-stage="tokens">Tokens</li>
+          <li data-stage="ast">AST</li>
+          <li data-stage="ir">IR</li>
+          <li data-stage="opt">Optimised IR</li>
+          <li data-stage="bytecode">Bytecode</li>
+        </ol>
+        <div class="opt-stats" id="optStats"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2 id="stageTitle">Source</h2></div>
+        <pre class="dump" id="stageDump"></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== TEST LAB ==================== -->
+  <section class="view" data-view="tests">
+    <div class="tests-grid">
+      <div class="panel">
+        <div class="panel-head"><h2>Scenarios</h2></div>
+        <ul class="test-list" id="testList"></ul>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Result</h2></div>
+        <div class="test-result" id="testResult">Load a scenario, run the program, and the checks below report back.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== WORLD EDITOR ==================== -->
+  <section class="view" data-view="world">
+    <div class="world-grid">
+      <div class="panel">
+        <div class="panel-head"><h2>Brush</h2></div>
+        <div class="brushes" id="brushes"></div>
+        <div class="panel-head"><h2>Map</h2></div>
+        <div class="world-actions">
+          <button class="btn btn-sm" id="btnClearWorld">Empty map</button>
+          <button class="btn btn-sm" id="btnBorderWorld">Add border</button>
+          <button class="btn btn-sm" id="btnRandomWorld">Scatter walls</button>
+          <button class="btn btn-sm" id="btnExportWorld">Export map</button>
+        </div>
+        <p class="hint">Click or drag on the map to paint. The robot and its start tile move with the start brush.</p>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Map editor</h2><span class="chip" id="worldSize"></span></div>
+        <div class="stage">
+          <canvas id="editorGrid" width="640" height="480"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== ROBOT ==================== -->
+  <section class="view" data-view="robot">
+    <div class="robot-grid">
+      <div class="panel">
+        <div class="panel-head"><h2>Chassis</h2></div>
+        <div class="chassis" id="chassisList"></div>
+        <div class="panel-head"><h2>Paint</h2></div>
+        <div class="swatches" id="swatches"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Specs</h2></div>
+        <div class="specs" id="specs"></div>
+        <div class="panel-head"><h2>Personality</h2></div>
+        <div class="specs">
+          <label class="row"><span>Name</span><input type="text" id="robotName" value="Scrappy"></label>
+          <label class="row"><span>Chatty moods</span><input type="checkbox" id="chatty" checked></label>
+          <label class="row"><span>Leave trail</span><input type="checkbox" id="trail" checked></label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="js/world.js"></script>
+<script src="js/robot.js"></script>
+<script src="js/blocks.js"></script>
+<script src="js/roboscript.js"></script>
+<script src="js/compiler.js"></script>
+<script src="js/vm.js"></script>
+<script src="js/render.js"></script>
+<script src="js/tests.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

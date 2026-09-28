@@ -1,0 +1,20 @@
+# Tops up on the charger before pushing for the goal pad.
+WHILE battery < 90
+  IF onCharger = 1
+    CHARGE 20
+  ELSE
+    IF distance > 0
+      MOVE 1
+    ELSE
+      TURN RIGHT
+    END
+  END
+END
+SAY "topped up, heading out"
+FOREVER
+  IF distance < 1
+    TURN LEFT
+  ELSE
+    MOVE 1
+  END
+END

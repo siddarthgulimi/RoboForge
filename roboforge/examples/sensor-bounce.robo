@@ -1,0 +1,12 @@
+# Bounces off whatever is in front of it and never bumps.
+SAY "bounce mode"
+FOREVER
+  WHILE distance > 0
+    MOVE 1
+  END
+  IF left > 0
+    TURN LEFT
+  ELSE
+    TURN RIGHT
+  END
+END

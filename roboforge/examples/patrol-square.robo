@@ -1,0 +1,8 @@
+# Drives a square patrol and reports each corner.
+SPEED 1
+REPEAT 4
+  MOVE 4
+  TURN RIGHT
+  SAY "corner"
+END
+STOP

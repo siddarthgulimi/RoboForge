@@ -1,0 +1,15 @@
+# Right-hand wall follower.
+# Keeps its right side against a wall, so it solves most mazes.
+SAY "hugging the right wall"
+FOREVER
+  IF right > 0
+    TURN RIGHT
+    MOVE 1
+  ELSE
+    IF distance > 0
+      MOVE 1
+    ELSE
+      TURN LEFT
+    END
+  END
+END
